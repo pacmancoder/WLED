@@ -11,7 +11,7 @@
 //#define USE_LPD8806 // Uncomment for using LPD8806
 //#define USE_TM1814  // Uncomment for using TM1814 LEDs (make sure you have NeoPixelBus v2.5.7 or newer)
 //#define USE_P9813   // Uncomment for using P9813 LEDs (make sure you have NeoPixelBus v2.5.8 or newer)
-//#define WLED_USE_ANALOG_LEDS //Uncomment for using "dumb" PWM controlled LEDs (see pins below, default R: gpio5, G: 12, B: 15, W: 13)
+#define WLED_USE_ANALOG_LEDS //Uncomment for using "dumb" PWM controlled LEDs (see pins below, default R: gpio5, G: 12, B: 15, W: 13)
 //#define WLED_USE_H801 //H801 controller. Please uncomment #define WLED_USE_ANALOG_LEDS as well
 //#define WLED_USE_5CH_LEDS  //5 Channel H801 for cold and warm white
 //#define WLED_USE_BWLT11
@@ -98,16 +98,16 @@
   //Enable override of Pins by using the platformio_override.ini file
   //PWM pins - PINs 5,12,13,15 are used with Magic Home LED Controller
     #ifndef RPIN
-      #define RPIN 5   //R pin for analog LED strip
+      #define RPIN 12   //R pin for analog LED strip
     #endif
     #ifndef GPIN
-      #define GPIN 12  //G pin for analog LED strip
+      #define GPIN 14  //G pin for analog LED strip
     #endif
     #ifndef BPIN
-      #define BPIN 15  //B pin for analog LED strip
+      #define BPIN 13  //B pin for analog LED strip
     #endif
     #ifndef WPIN
-      #define WPIN 13  //W pin for analog LED strip
+      #define WPIN 5  //W pin for analog LED strip
     #endif
   #endif
   #undef RLYPIN
@@ -259,6 +259,15 @@ public:
         }
         analogWriteRange(255);  //same range as one RGB channel
         analogWriteFreq(880);   //PWM frequency proven as good for LEDs
+
+        // clear values
+        analogWrite(RPIN, 255);
+        analogWrite(GPIN, 255);
+        analogWrite(BPIN, 255);
+        if(_type == NeoPixelType_Grbw) 
+        {
+          analogWrite(WPIN, 255);
+        }
       #endif 
     #endif
   }
@@ -279,15 +288,15 @@ public:
           #endif
         }        
       #else   // ESP8266
-        analogWrite(RPIN, r);
-        analogWrite(GPIN, g);
-        analogWrite(BPIN, b);
+        analogWrite(RPIN, 255-r);
+        analogWrite(GPIN, 255-g);
+        analogWrite(BPIN, 255-b);
         switch (_type) {
           case NeoPixelType_Grb:                                                  break;
           #ifdef WLED_USE_5CH_LEDS
             case NeoPixelType_Grbw: analogWrite(WPIN, w); analogWrite(W2PIN, w2); break;
           #else
-            case NeoPixelType_Grbw: analogWrite(WPIN, w);                         break;
+            case NeoPixelType_Grbw: analogWrite(WPIN, 255-w);                         break;
           #endif
         }
       #endif 
